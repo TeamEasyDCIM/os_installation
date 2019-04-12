@@ -1,0 +1,2 @@
+in-target mkdir /home/{{username}}/testdir
+in-target touch /root/test
