@@ -1,0 +1,7 @@
+part biosboot --fstype=biosboot --size=1
+part /boot --fstype ext2 --size 500
+part pv.01 --size 1 --grow
+volgroup myvg pv.01
+logvol / --vgname=myvg --size=1 --grow --fstype ext4 --name=root
+logvol /tmp --vgname=myvg --size=1024 --fstype ext4 --name=tmp
+logvol swap --vgname=myvg --recommended --name=swap
