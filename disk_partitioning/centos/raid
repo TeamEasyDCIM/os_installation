@@ -1,0 +1,10 @@
+part biosboot --fstype=biosboot --size=1 --ondisk=sda
+part biosboot --fstype=biosboot --size=1 --ondisk=sdb
+part raid.01 --size=1023 --asprimary --ondisk=sda
+part raid.02 --size=1023 --asprimary --ondisk=sdb
+
+part raid.11 --size=1 --grow --ondisk=sda
+part raid.12 --size=1 --grow --ondisk=sdb
+
+raid /boot --fstype ext2 --device md0 --level=RAID1 raid.01 raid.02
+raid / --fstype ext4 --device md1 --level=RAID1 raid.11 raid.12
