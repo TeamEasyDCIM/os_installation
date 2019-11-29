@@ -1,0 +1,29 @@
+#!preseed
+
+d-i partman-auto/method string raid
+d-i partman-auto/disk string /dev/sda /dev/sdb
+
+d-i partman-auto/expert_recipe string \
+    myraid :: \
+		512 100 512 raid \
+			$primary{ }  $bootable{ } \
+			method{ raid } \
+		. \
+		8192 100 9999999999 raid \
+			$primary{ } \
+			method{ raid } \
+		.
+
+d-i partman-auto-raid/recipe string  \
+  1 2 0 ext2 /boot /dev/sda1#/dev/sdb1 . \
+  1 2 0 ext4 / /dev/sda2#/dev/sdb2 .
+
+d-i partman-basicfilesystems/no_swap boolean false
+d-i partman/confirm_write_new_label boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/choose_partition select finish
+d-i partman-md/confirm boolean true
+d-i partman-md/confirm_nooverwrite boolean true
+d-i mdadm/boot_degraded boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/device_remove_lvm boolean true
