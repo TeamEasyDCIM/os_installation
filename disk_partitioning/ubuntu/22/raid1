@@ -1,0 +1,52 @@
+storage:
+  version: 1
+  config:
+    - id: sda
+      name: sda
+      device: /dev/sda
+      partitions:
+        - id: sda1
+          name: sda1
+          type: efi
+          size: 500M
+        - id: sda2
+          name: sda2
+          type: raid
+          size: 100G
+        - id: sda3
+          name: sda3
+          type: empty
+          size: -0
+    - id: sdb
+      name: sdb
+      device: /dev/sdb
+      partitions:
+        - id: sdb1
+          name: sdb1
+          type: efi
+          size: 500M
+        - id: sdb2
+          name: sdb2
+          type: raid
+          size: 100G
+        - id: sdb3
+          name: sdb3
+          type: empty
+          size: -0
+    - id: raid1
+      name: raid1
+      device: /dev/md0
+      type: raid
+      level: 1
+      devices:
+        - sda2
+        - sdb2
+      partitions:
+        - id: root
+          name: root
+          type: ext4
+          size: -0
+  grub:
+    devices:
+      - sda
+      - sdb

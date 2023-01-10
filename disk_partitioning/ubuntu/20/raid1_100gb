@@ -1,0 +1,13 @@
+#Ubuntu 20.04 LTS [Raid1 + 100GB /]
+preseed partman-auto/method string raid
+preseed partman-auto/disk string /dev/nvme0n1 /dev/nvme1n1
+
+part /boot/efi --fstype=efi --size=500 --asprimary
+part raid.01 --size=1024 --grow --ondisk=nvme0n1 --asprimary
+part raid.02 --size=1024 --grow --ondisk=nvme1n1 --asprimary
+
+raid / --fstype=ext4 --level=1 --device=md0 raid.01 raid.02
+
+preseed partman/confirm boolean true
+preseed partman/choose_partition string Finish partitioning and write changes to disk
+preseed partman/confirm_nooverwrite boolean true

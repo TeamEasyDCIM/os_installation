@@ -1,0 +1,35 @@
+preseed partman/early_command string "PRIMARYDISK=$(list-devices disk | head -n1); debconf-set partman-auto/disk $PRIMARYDISK; pvremove -y -f /dev/sd* /dev/hd* /dev/nvme* || true; lvremove -f vg || true;"
+
+# The presently available methods are:
+# - regular: use the usual partition types for your architecture
+# - lvm:     use LVM to partition the disk
+# - crypto:  use LVM within an encrypted partition
+preseed partman-auto/method string lvm
+
+# You can define the amount of space that will be used for the LVM volume
+# group. It can either be a size with its unit (eg. 20 GB), a percentage of
+# free space or the max keyword.
+preseed partman-auto-lvm/guided_size string max
+
+# If one of the disks that are going to be automatically partitioned
+# contains an old LVM configuration, the user will normally receive a
+# warning. This can be preseeded away...
+preseed partman-lvm/device_remove_lvm boolean true
+# The same applies to pre-existing software RAID array:
+preseed partman-md/device_remove_md boolean true
+# And the same goes for the confirmation to write the lvm partitions.
+preseed partman-lvm/confirm boolean true
+preseed partman-lvm/confirm_nooverwrite boolean true
+
+# You can choose one of the three predefined partitioning recipes:
+# - atomic: all files in one partition
+# - home:   separate /home partition
+# - multi:  separate /home, /var, and /tmp partitions
+preseed partman-auto/choose_recipe select atomic
+
+# This makes partman automatically partition without confirmation.
+preseed partman-md/confirm boolean true
+preseed partman-partitioning/confirm_write_new_label boolean true
+preseed partman/choose_partition select finish
+preseed partman/confirm boolean true
+preseed partman/confirm_nooverwrite boolean true

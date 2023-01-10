@@ -1,0 +1,11 @@
+# Disk partitioning information
+part raid.01 --size=500 --ondisk=sda --asprimary
+part raid.02 --size=500 --ondisk=sdb --asprimary
+part swap --size=4096 --ondisk=sda
+part swap --size=4096 --ondisk=sdb
+part raid.03 --size=1 --grow --ondisk=sda
+part raid.04 --size=1 --grow --ondisk=sdb
+
+# Create the RAID arrays
+raid /boot/efi --fstype=efi --level=raid1 --device=md0 raid.01 raid.02
+raid / --fstype=ext4 --level=raid1 --device=md1 raid.03 raid.04

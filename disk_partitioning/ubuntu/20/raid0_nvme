@@ -1,0 +1,10 @@
+#clearpart --initlabel --drives=/dev/nvme0n1 --drives /dev/nvme1n1
+
+# Disk partitioning information
+# Do not touch /boot/efi
+part /boot/efi --fstype=efi --size=500 --asprimary
+part raid.01 --size=1024 --grow --ondisk=nvme0n1 --asprimary
+part raid.02 --size=1024 --grow --ondisk=nvme1n1 --asprimary
+
+# Create the RAID arrays
+raid / --fstype=ext4 --level=0 --device=md0 raid.01 raid.02
