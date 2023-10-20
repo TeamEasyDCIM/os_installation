@@ -1,0 +1,21 @@
+storage:
+  config:
+  - { grub_device: true, id: disk-sda, path: /dev/sda, preserve: false, ptable: gpt, type: disk, wipe: superblock-recursive, preserve: false }
+  - { grub_device: true, id: disk-sdb, path: /dev/sdb, preserve: false, ptable: gpt, type: disk, wipe: superblock-recursive, preserve: false }
+  - { device: disk-sda, flag: bios_grub, grub_device: false, id: partition-0, number: 1, preserve: false, size: 1048576, type: partition}
+  - { device: disk-sdb, flag: bios_grub, grub_device: false, id: partition-1, number: 1, preserve: false, size: 1048576, type: partition}
+  - { device: disk-sda, flag: '', grub_device: false, id: partition-2, number: 2, preserve: false, size: 2G, type: partition, wipe: superblock }
+  - { device: disk-sdb, flag: '', grub_device: false, id: partition-3, number: 2, preserve: false, size: 2G, type: partition, wipe: superblock }
+  - { device: disk-sda, flag: '', grub_device: false, id: partition-4, number: 3, preserve: false, size: 8G, type: partition, wipe: superblock }
+  - { device: disk-sdb, flag: '', grub_device: false, id: partition-5, number: 3, preserve: false, size: 8G, type: partition, wipe: superblock }
+  - { device: disk-sda, flag: '', grub_device: false, id: partition-6, number: 4, preserve: false, size: -1, type: partition, wipe: superblock }
+  - { device: disk-sdb, flag: '', grub_device: false, id: partition-7, number: 4, preserve: false, size: -1, type: partition, wipe: superblock }
+  - { devices: [ partition-2, partition-3 ], id: raid-0, name: md0, preserve: false, raidlevel: raid1, spare_devices: [], type: raid, wipe: superblock }
+  - { devices: [ partition-4, partition-5 ], id: raid-1, name: md1, preserve: false, raidlevel: raid1, spare_devices: [], type: raid, wipe: superblock }
+  - { devices: [ partition-6, partition-7 ], id: raid-2, name: md2, preserve: false, raidlevel: raid1, spare_devices: [], type: raid, wipe: superblock }
+  - { fstype: swap, id: format-0, preserve: false, type: format, volume: raid-1 }
+  - { device: format-0, id: mount-0, path: '', type: mount }
+  - { fstype: ext4, id: format-1, preserve: false, type: format, volume: raid-2 }
+  - { device: format-1, id: mount-1, path: /, type: mount }
+  - { fstype: ext4 , id: format-2, preserve: false, type: format, volume: raid-0 }
+  - { device: format-2, id: mount-2, path: /boot, type: mount}
