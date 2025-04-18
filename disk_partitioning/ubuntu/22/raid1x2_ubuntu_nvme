@@ -1,0 +1,23 @@
+storage:
+  config:
+    - { id: disk-nvme0n1, path: /dev/nvme0n1, ptable: gpt, wipe: superblock-recursive, type: disk, grub_device: true }
+    - { id: disk-nvme1n1, path: /dev/nvme1n1, ptable: gpt, wipe: superblock-recursive, type: disk, grub_device: true }
+    - { device: disk-nvme0n1, id: partition-efi0, size: 1G, flag: [ boot, esp ], type: partition }
+    - { device: disk-nvme1n1, id: partition-efi1, size: 1G, flag: [ boot, esp ], type: partition }
+    - { device: disk-nvme0n1, id: partition-boot0, size: 2G, type: partition }
+    - { device: disk-nvme1n1, id: partition-boot1, size: 2G, type: partition }
+    - { device: disk-nvme0n1, id: partition-swap0, size: 8G, type: partition }
+    - { device: disk-nvme1n1, id: partition-swap1, size: 8G, type: partition }
+    - { device: disk-nvme0n1, id: partition-root0, size: -1, type: partition }
+    - { device: disk-nvme1n1, id: partition-root1, size: -1, type: partition }
+    - { id: raid-boot, name: md0, raidlevel: raid1, devices: [ partition-boot0, partition-boot1 ], type: raid }
+    - { id: raid-swap, name: md1, raidlevel: raid1, devices: [ partition-swap0, partition-swap1 ], type: raid }
+    - { id: raid-root, name: md2, raidlevel: raid1, devices: [ partition-root0, partition-root1 ], type: raid }
+    - { fstype: fat32, id: format-efi0, volume: partition-efi0, type: format }
+    - { device: format-efi0, id: mount-efi0, path: /boot/efi, type: mount }
+    - { fstype: ext4, id: format-boot, volume: raid-boot, type: format }
+    - { device: format-boot, id: mount-boot, path: /boot, type: mount }
+    - { fstype: swap, id: format-swap, volume: raid-swap, type: format }
+    - { device: format-swap, id: mount-swap, path: "", type: mount }
+    - { fstype: ext4, id: format-root, volume: raid-root, type: format }
+    - { device: format-root, id: mount-root, path: "/", type: mount }
