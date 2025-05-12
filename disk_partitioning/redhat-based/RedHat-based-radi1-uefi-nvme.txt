@@ -1,0 +1,19 @@
+clearpart --drives=nvme0n1,nvme1n1
+zerombr
+
+part /boot/efi --size=200 --ondisk=nvme0n1 --fstype=efi
+part /boot/efi --size=200 --ondisk=nvme1n1 --fstype=efi
+
+part raid.11  --size=1024   --ondisk=nvme0n1
+part raid.12  --size=101376 --ondisk=nvme0n1 --grow
+part raid.21  --size=1024   --ondisk=nvme1n1
+part raid.22  --size=101376 --ondisk=nvme1n1 --grow
+
+raid /boot --level=1 --device=md0 --fstype=ext4 raid.11 raid.21
+raid pv.01 --level=1 --device=md1 --fstype=ext4 raid.12 raid.22
+
+volgroup vgsys pv.01
+logvol swap --fstype=swap --name=swap --vgname=vgsys --recommended
+logvol /    --fstype=ext4 --name=root --vgname=vgsys --size=10240 --grow
+
+bootloader --location=mbr --boot-drive=nvme0n1 --driveorder=nvme0n1,nvme1n1

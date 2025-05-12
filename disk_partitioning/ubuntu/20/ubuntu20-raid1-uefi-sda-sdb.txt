@@ -1,0 +1,38 @@
+preseed partman/early_command string "totalPartitions=\$(grep -c 'sda[0-9]' /proc/partitions); if [ \$totalPartitions -ge 1 ]; then echo 'd 4\nd 3\nd 2\nd 1\nw' | fdisk /dev/sda; echo 'd 4\nd 3\nd 2\nd 1\nw' | fdisk /dev/sdb; reboot; fi"
+
+preseed preseed/late_command in-target "lvremove -f /dev/vg0/deleteme; lvextend -l +100%FREE /dev/vg0/root; resize2fs /dev/mapper/vg0-root;"
+
+preseed partman/unmount_active boolean true
+preseed partman/unmount_active seen true
+
+preseed partman-auto/method string "raid"
+preseed partman-auto/disk string "/dev/sda /dev/sdb"
+preseed partman-auto/choose_recipe select uefi-raid-lvm
+
+preseed partman-lvm/device_remove_lvm boolean true
+preseed partman-lvm/confirm_nooverwrite boolean true
+preseed partman-lvm/confirm boolean true
+preseed partman-auto-lvm/new_vg_name string vg0
+preseed mdadm/boot_degraded boolean true
+
+preseed partman-auto/expert_recipe "uefi-raid-lvm :: \
+  1 1 1 free $gptonly{ } $primary{ } $lvmignore{ } $bios_boot{ } method{ biosgrub } . \
+  1024 10 1024 fat32 $gptonly{ } $primary{ } $lvmignore{ } method{ efi } format{ } . \
+  1024 20 1024 raid $primary{ } $lvmignore{ } method{ raid } . \
+  500 10000 -1 raid $primary{ } $lvmignore{ } method{ raid } . \
+  20000 50 20000 ext4 $defaultignore{ } $lvmok{ } method{ format } format{ } use_filesystem{ } filesystem{ ext4 } mountpoint{ / } lv_name{ root } . \
+  4096 512 4096 linux-swap $defaultignore{ } $lvmok{ } method{ swap } format{ } lv_name{ swap } . \
+  64 9999 - ext4 $defaultignore{ } $lvmok{ } method{ lvm } lv_name{ deleteme } ."
+
+preseed partman-auto-raid/recipe string "1 2 0 ext4 /boot /dev/sda3#/dev/sdb3 . 1 2 0 lvm - /dev/sda4#/dev/sdb4 ."
+  
+preseed partman-md/confirm boolean true
+preseed partman-md/device_remove_md boolean true
+preseed partman-md/confirm_nooverwrite  boolean true
+preseed partman-partitioning/confirm_write_new_label boolean true
+preseed partman/choose_partition select finish
+preseed partman/confirm boolean true
+preseed partman/confirm_nooverwrite boolean true
+preseed partman-basicfilesystems/no_swap boolean false
+
+preseed grub-installer/bootdev string /dev/sda /dev/sdb

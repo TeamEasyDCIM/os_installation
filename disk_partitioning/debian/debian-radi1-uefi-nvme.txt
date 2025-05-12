@@ -1,0 +1,80 @@
+d-i debian-installer/add-kernel-opts string intel_iommu=off
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-md/confirm_nochanges boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-md/confirm_nooverwrite boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/confirm boolean true
+d-i partman/choose_partition select finish
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman-md/confirm boolean true
+d-i partman-auto-lvm/new_vg_name string vg0
+d-i partman-auto-lvm/guided_size string max
+d-i mdadm/boot_degraded boolean true
+d-i partman/choose_partition select Finish partitioning and write changes to disk
+d-i grub-installer/bootdev string /dev/nvme0n1 /dev/nvme1n1
+d-i grub-installer/timeout string 2
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+
+d-i partman-auto/method string raid
+d-i partman-auto/disk string /dev/nvme0n1 /dev/nvme1n1
+d-i partman-auto/expert_recipe string                      \
+      raid-lvm ::                                          \
+          1 1 1 free                                        \
+              $gptonly{ }                                   \
+              $primary{ }                                   \
+              $lvmignore{ }                                 \
+              $bios_boot{ }                                 \
+              method{ biosgrub }                            \
+          .                                                 \
+          256 10 256 fat32                                  \
+              $gptonly{ }                                   \
+              $primary{ }                                   \
+              $lvmignore{ }                                 \
+              method{ efi }                                 \
+              format{ }                                     \
+          .                                                 \
+          256 20 256 raid                                   \
+              $primary{ }                                   \
+              $lvmignore{ }                                 \
+              method{ raid }                                \
+          .                                                 \
+          500 10000 -1 raid                                 \
+              $primary{ }                                   \
+              $lvmignore{ }                                 \
+              method{ raid }                                \
+          .                                                 \
+          20000 50 20000 ext4                               \
+              $defaultignore{ }                             \
+              $lvmok{ }                                     \
+              method{ format }                              \
+              format{ }                                     \
+              use_filesystem{ }                             \
+              filesystem{ ext4 }                            \
+              mountpoint{ / }                               \
+              lv_name{ root }                               \
+          .                                                 \
+          64 512 150% linux-swap                            \
+              $defaultignore{ }                             \
+              $lvmok{ }                                     \
+              method{ swap }                                \
+              format{ }                                     \
+              lv_name{ swap }                               \
+          .                                                 \
+          64 9999 - ext4                                    \
+              $defaultignore{ }                             \
+              $lvmok{ }                                     \
+              method{ lvm }                                 \
+              lv_name{ deleteme }                           \
+          .                                                 
+
+d-i partman-auto-raid/recipe string                        \
+    1 2 0 ext4 /boot                                       \
+          /dev/nvme0n1p3#/dev/nvme1n1p3                     \
+    .                                                      \
+    1 2 0 lvm -                                            \
+          /dev/nvme0n1p4#/dev/nvme1n1p4                     \
+    .
